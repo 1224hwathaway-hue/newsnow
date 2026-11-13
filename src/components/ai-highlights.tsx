@@ -20,10 +20,11 @@ export function AIHighlights() {
   const [open, setOpen] = useState(false)
   const [data, setData] = useState<Response>()
   const [busy, setBusy] = useState(false)
+  const [retry, setRetry] = useState(0)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (!open || data || busy) return
+    if (!open || data) return
     const controller = new AbortController()
     setBusy(true)
     fetch("/api/ai/top10", { signal: controller.signal })
@@ -37,7 +38,7 @@ export function AIHighlights() {
       })
       .finally(() => setBusy(false))
     return () => controller.abort()
-  }, [open, data])
+  }, [open, retry])
 
   return (
     <section className="mx-2 mb-5 rounded-2xl border border-neutral-200/60 dark:border-neutral-700/70 overflow-hidden">
@@ -60,7 +61,7 @@ export function AIHighlights() {
           {error && (
             <div role="alert" className="text-sm">
               <p>{error}</p>
-              <button type="button" className="mt-2 underline" onClick={() => { setError(""); setData(undefined); setOpen(false); setTimeout(() => setOpen(true), 0) }}>重试</button>
+              <button type="button" className="mt-2 underline" onClick={() => { setError(""); setData(undefined); setRetry(value => value + 1) }}>重试</button>
             </div>
           )}
           {data && (
